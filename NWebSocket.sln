@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebSocketLib", "NWebSocketLib\NWebSocketLib.csproj", "{3E57E2A9-7A10-4C21-A253-FF3568F2A938}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebSocketLib.Test", "NWebSocketLib.Test\NWebSocketLib.Test.csproj", "{56FC7D83-016D-4DC5-9C97-2C8EF9C13ACB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4EDF2195-B1B8-4ADE-8190-EA8A7B4FB653}"
+	ProjectSection(SolutionItems) = preProject
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+		NWebSocket.vsmdi = NWebSocket.vsmdi
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = NWebSocket.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E57E2A9-7A10-4C21-A253-FF3568F2A938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E57E2A9-7A10-4C21-A253-FF3568F2A938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E57E2A9-7A10-4C21-A253-FF3568F2A938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E57E2A9-7A10-4C21-A253-FF3568F2A938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56FC7D83-016D-4DC5-9C97-2C8EF9C13ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56FC7D83-016D-4DC5-9C97-2C8EF9C13ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56FC7D83-016D-4DC5-9C97-2C8EF9C13ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56FC7D83-016D-4DC5-9C97-2C8EF9C13ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
