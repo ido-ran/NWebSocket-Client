@@ -6,9 +6,18 @@ using System.Net.Sockets;
 using System.IO;
 using System.Collections.Specialized;
 using System.Net;
+using WebSocketServer;
 
 namespace NWebSocketLib {
-  public class WebSocket {
+  /// <summary>
+  /// WebSocket client.
+  /// </summary>
+  /// <remarks>
+  /// This class design to mimic JavaScript's WebSocket class.
+  /// It handle the handshake and framing of the data and provide MessageReceived event to handle messages.
+  /// Please note that this event is raised on a arbitrary pooled background thread.
+  /// </remarks>
+  public class WebSocketClient {
 
     private Uri uri;
     private Socket socket;
@@ -16,13 +25,18 @@ namespace NWebSocketLib {
     private NetworkStream networkStream;
     private StreamReader inputStream;
     private StreamWriter outputStream;
+    private WebSocketConnection connection;
     private Dictionary<string,string> headers;
+
+    public event EventHandler<DataReceivedEventArgs> OnMessage;
+    public event EventHandler OnError;
+    public event EventHandler OnClose;
 
     /// <summary>
     /// Creates a new WebSocket targeting the specified URL.
     /// </summary>
     /// <param name="uri"></param>
-    public WebSocket(Uri uri) {
+    public WebSocketClient(Uri uri) {
       this.uri = uri;
       string protocol = uri.Scheme;
       if (!protocol.Equals("ws") && !protocol.Equals("wss")) {
@@ -106,6 +120,39 @@ namespace NWebSocketLib {
       } while (!header.Equals(""));
 
       handshakeComplete = true;
+
+      connection = new WebSocketConnection(socket);
+      connection.DataReceived += new DataReceivedEventHandler(DataReceivedHandler);
+      connection.Disconnected += new WebSocketDisconnectedEventHandler(DisconnectedHandler);
+      connection.Error += new EventHandler(ErrorHandler);
+    }
+
+    private void DataReceivedHandler(WebSocketConnection sender, DataReceivedEventArgs e) {
+      FireOnMessage(e);
+    }
+
+    private void ErrorHandler(object sender, EventArgs e) {
+      FireOnError();
+      Close();
+    }
+
+    private void DisconnectedHandler(WebSocketConnection sender, EventArgs e) {
+      handshakeComplete = false;
+    }
+
+    protected virtual void FireOnMessage(DataReceivedEventArgs e) {
+      var h = OnMessage;
+      if (h != null) h(this, e);
+    }
+
+    protected virtual void FireOnError() {
+      var h = OnError;
+      if (h != null) h(this, EventArgs.Empty);
+    }
+
+    protected virtual void FireOnClose() {
+      var h = OnClose;
+      if (h != null) h(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -123,52 +170,21 @@ namespace NWebSocketLib {
     }
 
     /// <summary>
-    /// Receives the next data frame.
-    /// </summary>
-    /// <returns></returns>
-    public string Receive() {
-      DemandHandshake();
-
-      List<byte> buf = new List<byte>();
-
-      int b = networkStream.ReadByte();
-      if ((b & 0x80) == 0x80) {
-        // Skip data frame
-        int len = 0;
-        do {
-          b = networkStream.ReadByte() & 0x7f;
-          len = b * 128 + len;
-        } while ((b & 0x80) != 0x80);
-
-        for (int i = 0; i < len; i++) {
-          networkStream.ReadByte();
-        }
-      }
-
-      while (true) {
-        b = networkStream.ReadByte();
-        if (b == 0xff) {
-          break;
-        }
-
-        buf.Add((byte)b);
-      }
-
-      string decodedString = Encoding.UTF8.GetString(buf.ToArray());
-      return decodedString;
-    }
-
-    /// <summary>
     /// Closes the socket.
     /// </summary>
     public void Close() {
       if (handshakeComplete) {
-        networkStream.WriteByte(0xFF);
-        networkStream.WriteByte(0x00);
-        networkStream.Flush();
+        try {
+          networkStream.WriteByte(0xFF);
+          networkStream.WriteByte(0x00);
+          networkStream.Flush();
+        }
+        catch {
+          // Ignore any excption during close handshake.
+        }
       }
 
-      socket.Close();
+      connection.Close();
     }
 
     private void DemandHandshake() {

@@ -7,8 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebSocketLib.Test", "NWebS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4EDF2195-B1B8-4ADE-8190-EA8A7B4FB653}"
 	ProjectSection(SolutionItems) = preProject
+		License.txt = License.txt
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 		NWebSocket.vsmdi = NWebSocket.vsmdi
+		README.txt = README.txt
 	EndProjectSection
 EndProject
 Global

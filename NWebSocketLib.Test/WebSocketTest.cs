@@ -3,10 +3,13 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace NWebSocketLib.Test {
   /// <summary>
-  /// Summary description for WebSocketTest
+  /// Summary description for WebSocketTest.
+  /// 
+  /// The test curently relaying on WebSocketServer sample application WebSocketChatServer.
   /// </summary>
   [TestClass]
   public class WebSocketTest {
@@ -31,6 +34,8 @@ namespace NWebSocketLib.Test {
       }
     }
 
+    //private WebSocketServer.WebSocketServer wss;
+
     #region Additional test attributes
     //
     // You can use the following additional attributes as you write your tests:
@@ -44,36 +49,91 @@ namespace NWebSocketLib.Test {
     // public static void MyClassCleanup() { }
     //
     // Use TestInitialize to run code before running each test 
-    // [TestInitialize()]
-    // public void MyTestInitialize() { }
+    [TestInitialize()]
+    public void MyTestInitialize() {
+      //wss = new WebSocketServer.WebSocketServer(8181, "http://localhost:8080", "ws://localhost:8181/chat");
+      //wss.ClientConnected += new WebSocketServer.ClientConnectedEventHandler(wss_ClientConnected);
+      //wss.Start();
+    }
+
+    //private void wss_ClientConnected(WebSocketServer.WebSocketConnection sender, EventArgs e) {
+    //  sender.DataReceived += new WebSocketServer.DataReceivedEventHandler(Client_DataReceived);
+    //}
+
+    //void Client_DataReceived(WebSocketServer.WebSocketConnection sender, WebSocketServer.DataReceivedEventArgs e) {
+    //  // Echo
+    //  sender.Send(e.Data);
+    //}
+
     //
     // Use TestCleanup to run code after each test has run
-    // [TestCleanup()]
-    // public void MyTestCleanup() { }
+    [TestCleanup()]
+    public void MyTestCleanup() {
+      //wss.Stop();
+    }
     //
     #endregion
 
     [TestMethod]
     public void Connect() {
-      WebSocket ws = new WebSocket(new Uri("ws://localhost:9080/WebSocketChat/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8181/chat"));
       ws.Connect();
       ws.Close();
     }
 
     [TestMethod]
     public void Send() {
-      WebSocket ws = new WebSocket(new Uri("ws://localhost:9080/WebSocketChat/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8181/chat"));
       ws.Connect();
-      ws.Send("User1: Hello Sir");
+      ws.Send("login: User1");
       ws.Close();
     }
 
     [TestMethod]
     public void Receive() {
-      WebSocket ws = new WebSocket(new Uri("ws://localhost:9080/WebSocketChat/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8181/chat"));
+      
+      ManualResetEvent receiveEvent = new ManualResetEvent(false);
+      ws.OnMessage += (s, e) =>
+      {
+        receiveEvent.Set();
+      };
+
       ws.Connect();
-      string msg = ws.Receive();
-      Assert.IsNotNull(msg);
+      ws.Send("login: User1");
+
+      bool received = receiveEvent.WaitOne(TimeSpan.FromSeconds(2));
+      Assert.IsTrue(received);
+
+      receiveEvent.Close();
+      ws.Close();
+    }
+
+    [TestMethod]
+    public void SendAndRecieve() {
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8181/chat"));
+
+      ManualResetEvent receiveEvent = new ManualResetEvent(false);
+      ws.OnMessage += (s, e) =>
+      {
+        receiveEvent.Set();
+      };
+
+      ws.Connect();
+      ws.Send("login: " + DateTime.Now.Second);
+      bool received = receiveEvent.WaitOne(TimeSpan.FromSeconds(2));
+      Assert.IsTrue(received);
+
+      for (int i = 0; i < 10; i++) {
+        ws.Send("Msg #" + i);
+        receiveEvent.Reset();
+        received = receiveEvent.WaitOne(TimeSpan.FromSeconds(2));
+        Assert.IsTrue(received);
+
+      }
+      
+      receiveEvent.Close();
+
       ws.Close();
     }
   }
