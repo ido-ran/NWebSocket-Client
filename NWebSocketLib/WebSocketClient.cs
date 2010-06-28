@@ -19,6 +19,8 @@ namespace NWebSocketLib {
   /// </remarks>
   public class WebSocketClient {
 
+    private readonly static byte[] CloseFrame = new byte[] { 0xFF, 0x00 };
+
     private Uri uri;
     private Socket socket;
     private bool handshakeComplete;
@@ -100,7 +102,7 @@ namespace NWebSocketLib {
 
       inputStream = new StreamReader(networkStream);
       string header = inputStream.ReadLine();
-      if (!header.Equals("HTTP/1.1 101 Web Socket Protocol Handshake")) {
+      if (!header.Equals("HTTP/1.1 101 Switching Protocols")) {
         throw new InvalidOperationException("Invalid handshake response");
       }
       
@@ -175,8 +177,7 @@ namespace NWebSocketLib {
     public void Close() {
       if (handshakeComplete) {
         try {
-          networkStream.WriteByte(0xFF);
-          networkStream.WriteByte(0x00);
+          networkStream.Write(CloseFrame, 0, CloseFrame.Length);
           networkStream.Flush();
         }
         catch {
