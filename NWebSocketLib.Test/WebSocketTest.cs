@@ -51,7 +51,7 @@ namespace NWebSocketLib.Test {
     // Use TestInitialize to run code before running each test 
     [TestInitialize()]
     public void MyTestInitialize() {
-      //wss = new WebSocketServer.WebSocketServer(8181, "http://localhost:8080", "ws://localhost:8180/chat");
+      //wss = new WebSocketServer.WebSocketServer(8181, "http://localhost:8080", "ws://localhost:8080/chat");
       //wss.ClientConnected += new WebSocketServer.ClientConnectedEventHandler(wss_ClientConnected);
       //wss.Start();
     }
@@ -76,14 +76,14 @@ namespace NWebSocketLib.Test {
 
     [TestMethod]
     public void Connect() {
-      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8180/WebSocketCha11t/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8080/YASO/chat"));
       ws.Connect();
       ws.Close();
     }
 
     [TestMethod]
     public void Send() {
-      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8180/WebSocketChat/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8080/YASO/chat"));
       ws.Connect();
       ws.Send("login: User1");
       ws.Close();
@@ -91,7 +91,7 @@ namespace NWebSocketLib.Test {
 
     [TestMethod]
     public void Receive() {
-      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8180/WebSocketChat/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8080/YASO/chat"));
       
       ManualResetEvent receiveEvent = new ManualResetEvent(false);
       ws.OnMessage += (s, e) =>
@@ -111,7 +111,7 @@ namespace NWebSocketLib.Test {
 
     [TestMethod]
     public void SendAndRecieve() {
-      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8180/chat"));
+      WebSocketClient ws = new WebSocketClient(new Uri("ws://localhost:8080/YASO/chat"));
 
       ManualResetEvent receiveEvent = new ManualResetEvent(false);
       ws.OnMessage += (s, e) =>
@@ -125,11 +125,10 @@ namespace NWebSocketLib.Test {
       Assert.IsTrue(received);
 
       for (int i = 0; i < 10; i++) {
-        ws.Send("Msg #" + i);
         receiveEvent.Reset();
+        ws.Send("Msg #" + i);
         received = receiveEvent.WaitOne(TimeSpan.FromSeconds(2));
-        Assert.IsTrue(received);
-
+        Assert.IsTrue(received, "Fail on round " + i);
       }
       
       receiveEvent.Close();
@@ -137,20 +136,5 @@ namespace NWebSocketLib.Test {
       ws.Close();
     }
 
-    [TestMethod]
-    public void TestPublicWebSocketServer() {
-      WebSocketClient ws = new WebSocketClient(new Uri("ws://websockets.org:8787"));
-      ManualResetEvent receiveEvent = new ManualResetEvent(false);
-
-      ws.OnMessage += (s, e) =>
-        {
-          receiveEvent.Set();
-        };
-
-      ws.Connect();
-      bool received = receiveEvent.WaitOne(TimeSpan.FromSeconds(2));
-      Assert.IsTrue(received);
-
-    }
   }
 }

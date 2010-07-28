@@ -102,7 +102,7 @@ namespace NWebSocketLib {
 
       inputStream = new StreamReader(networkStream);
       string header = inputStream.ReadLine();
-      if (!header.Equals("HTTP/1.1 101 Switching Protocols")) {
+      if (!header.Equals("HTTP/1.1 101 Web Socket Protocol Handshake")) {
         throw new InvalidOperationException("Invalid handshake response");
       }
       
