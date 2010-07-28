@@ -3,3 +3,8 @@ bin
 obj
 *.suo
 TestResults
+
+# Ignore aurora service generated files
+YASO/build/
+YASO/dist/
+YASO/nbproject/private/

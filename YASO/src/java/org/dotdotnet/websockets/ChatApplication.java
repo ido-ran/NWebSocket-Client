@@ -63,6 +63,7 @@ public class ChatApplication extends WebSocketApplication {
   public void onClose(WebSocket socket) throws IOException {
     super.onClose(socket);
     ChatWebSocket chatws = (ChatWebSocket) socket;
+    ChatWebSocketServlet.logger.log(Level.INFO, "{0} socket was closed", chatws.getUser());
     broadcast("room", chatws.getUser() + "has left the room");
   }
 

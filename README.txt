@@ -6,3 +6,5 @@ This is port of the Java client libarary at http://github.com/adamac/Java-WebSoc
 See License.txt for license information.
 
 Developed by Ido Ran (ido.ran@gmail.com)
+
+YASO is a sample chat application which use WebSocket built with J2EE and Glassfish.
